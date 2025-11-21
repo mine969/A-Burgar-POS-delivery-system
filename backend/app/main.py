@@ -11,6 +11,7 @@ app = FastAPI(title="Food Delivery API")
 # CORS Configuration
 origins = [
     "http://localhost:3000", # Frontend
+    "http://localhost:3001", # Frontend Demo
     "http://localhost:8000",
 ]
 

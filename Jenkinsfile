@@ -31,13 +31,8 @@ pipeline {
             steps {
                 script {
                     echo 'Running tests...'
-                    // Example: Run backend tests
-                    // sh 'docker-compose run --rm backend pytest'
-                    
-                    // Example: Run frontend tests
-                    // sh 'docker-compose run --rm frontend npm test'
-                    
-                    echo 'Skipping tests for now as they are not yet implemented.'
+                    // Run backend tests
+                    sh 'docker-compose run --rm backend pytest -v'
                 }
             }
         }

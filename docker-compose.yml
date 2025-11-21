@@ -10,14 +10,11 @@ services:
       - db
 
   frontend:
-    build: ./frontend/my-app
+    build: ./frontend-demo
     ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend/my-app:/app
-      - /app/node_modules
+      - "3001:3000"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
 
   db:
     image: mysql:8.0

@@ -1,7 +1,8 @@
 FROM node:20-alpine AS builder
 
-# Accept build argument for API_HOST
+# Accept build argument for API_HOST and NEXT_PUBLIC_API_URL
 ARG API_HOST=http://localhost:3001
+ARG NEXT_PUBLIC_API_URL=http://localhost:3002
 
 WORKDIR /app
 
@@ -12,7 +13,8 @@ RUN npm ci && npm cache clean --force
 # Copy source files and build
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1 \
-    API_HOST=${API_HOST}
+    API_HOST=${API_HOST} \
+    NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 RUN npm run build
 
 

@@ -50,6 +50,7 @@ services:
       context: ./frontend-demo
       args:
         - API_HOST=${API_HOST:-http://localhost:3001}
+        - NEXT_PUBLIC_API_URL=http://localhost:3002
     restart: unless-stopped
     environment:
       - NODE_ENV=production

@@ -67,7 +67,7 @@ CREATE INDEX idx_users_email ON users(email);
 INSERT INTO users (name, email, password_hash, role)
 VALUES (
         'Admin Manager',
-        'admine123@gmail.com',
+        'admin123@gmail.com',
         '$2b$12$jNGZk2Wf1kGRrbMfTQKD7.j5pS0VpQLDrNvsasA3nADQQeTuMq.ZG',
         'manager'
     ),

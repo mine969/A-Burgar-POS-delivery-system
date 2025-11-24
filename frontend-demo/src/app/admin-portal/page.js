@@ -20,7 +20,7 @@ export default function AdminLogin() {
       // Get user role
       const user = await api.getMe(data.access_token);
       
-      if (user.role === 'admin' || user.role === 'manager') {
+      if (user.role === 'admin' || user.role === 'manager' || user.role === 'kitchen'|| user.role === 'driver') {
         router.push('/staff');
       } else if (user.role === 'driver') {
         router.push('/driver');

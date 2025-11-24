@@ -1,4 +1,4 @@
-from .user import User, Customer
+from .user import User
 from .menu import MenuItem
 from .order import Order, OrderItem, DriverAssignment, DriverLocation
-from .chat import ChatSession, Message
+from .payment import Payment

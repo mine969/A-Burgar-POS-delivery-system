@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
-from .routers import auth, users, menu, orders, chat
+from .routers import auth, users, menu, orders, payments, kitchen, delivery, admin, guest
 
 # Create tables (optional, good for dev)
 Base.metadata.create_all(bind=engine)
@@ -28,7 +28,11 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(menu.router)
 app.include_router(orders.router)
-app.include_router(chat.router)
+app.include_router(payments.router)
+app.include_router(kitchen.router)
+app.include_router(delivery.router)
+app.include_router(admin.router)
+app.include_router(guest.router)
 
 @app.get("/")
 def read_root():

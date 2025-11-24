@@ -75,7 +75,7 @@ def read_orders(
     current_user: models.User = Depends(auth.get_current_user)
 ):
     # Filter by role
-    if current_user.role == "admin" or current_user.role == "manager":
+    if current_user.role in ["admin", "manager", "kitchen"]:
         return db.query(models.Order).all()
     elif current_user.role == "driver":
         return db.query(models.Order).filter(models.Order.driver_id == current_user.id).all()

@@ -1,18 +1,20 @@
 from sqlalchemy import Column, Integer, String, DECIMAL, DateTime, ForeignKey, Text, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from datetime import datetime # Added for datetime.utcnow
 from ..database import Base
 
 class Order(Base):
     __tablename__ = "orders"
 
     id = Column(Integer, primary_key=True, index=True)
-    status = Column(String(50), nullable=False)
+    tracking_id = Column(String(36), unique=True, index=True, nullable=True) # Added
+    status = Column(String(50), nullable=False, index=True) # Modified (added index=True)
     delivery_address = Column(String(255), nullable=False)
-    notes = Column(Text)
+    notes = Column(Text, nullable=True) # Modified (added nullable=True)
     total_amount = Column(DECIMAL(10, 2), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
+    created_at = Column(DateTime, default=datetime.utcnow) # Modified
+
     customer_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     guest_name = Column(String(255), nullable=True)
     guest_email = Column(String(255), nullable=True)
@@ -20,9 +22,10 @@ class Order(Base):
     
     driver_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
-    customer = relationship("User", back_populates="orders", foreign_keys=[customer_id])
-    driver = relationship("User", back_populates="assigned_orders", foreign_keys=[driver_id])
-    items = relationship("OrderItem", back_populates="order")
+    customer = relationship("User", foreign_keys=[customer_id], back_populates="orders") # Modified (foreign_keys order)
+    driver = relationship("User", foreign_keys=[driver_id], back_populates="deliveries") # Modified (back_populates)
+    items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan") # Modified (added cascade)
+    payment = relationship("Payment", back_populates="order", uselist=False) # Added
     driver_assignment = relationship("DriverAssignment", back_populates="order", uselist=False)
     driver_location = relationship("DriverLocation", back_populates="order", uselist=False)
 

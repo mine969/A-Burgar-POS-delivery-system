@@ -34,7 +34,7 @@ export default function StaffDashboard() {
     try {
       const userData = await api.getMe(token);
       setUser(userData);
-      if (userData.role !== 'admin' && userData.role !== 'manager') {
+      if (userData.role !== 'admin' && userData.role !== 'manager' && userData.role !== 'kitchen') {
         router.push('/menu');
       } else {
         loadData(token, userData.role);

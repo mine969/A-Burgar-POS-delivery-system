@@ -15,23 +15,10 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    customer = relationship("Customer", back_populates="user", uselist=False)
     driver_assignments = relationship("DriverAssignment", back_populates="driver")
     driver_locations = relationship("DriverLocation", back_populates="driver")
     
     # Direct Order relationships
     orders = relationship("Order", back_populates="customer", foreign_keys="Order.customer_id")
-    assigned_orders = relationship("Order", back_populates="driver", foreign_keys="Order.driver_id")
-
-
-class Customer(Base):
-    __tablename__ = "customers"
-
-    id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    session_token = Column(String(255))
-    name = Column(String(255))
-    phone = Column(String(50))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-    user = relationship("User", back_populates="customer")
+    deliveries = relationship("Order", back_populates="driver", foreign_keys="Order.driver_id")
 

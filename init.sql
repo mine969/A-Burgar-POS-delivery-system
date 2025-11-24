@@ -13,10 +13,12 @@ CREATE TABLE menu_items (
     price DECIMAL(10, 2) NOT NULL,
     image_url VARCHAR(255),
     is_available BOOLEAN DEFAULT TRUE,
-    category VARCHAR(50) -- Added category column to match seed data logic
+    category VARCHAR(50)
 );
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    tracking_id VARCHAR(36) UNIQUE,
+    -- Added tracking_id for guest tracking
     status VARCHAR(50) NOT NULL,
     delivery_address VARCHAR(255) NOT NULL,
     notes TEXT,
@@ -37,6 +39,17 @@ CREATE TABLE order_items (
     item_price DECIMAL(10, 2) NOT NULL,
     order_id INT,
     FOREIGN KEY (menu_item_id) REFERENCES menu_items(id),
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+CREATE TABLE payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_method VARCHAR(50) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    -- pending, completed, failed
+    transaction_id VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES orders(id)
 );
 CREATE TABLE driver_assignments (
@@ -60,6 +73,7 @@ CREATE TABLE driver_locations (
 );
 -- Indexes for performance
 CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_tracking_id ON orders(tracking_id);
 CREATE INDEX idx_driver_assignments_status ON driver_assignments(status);
 CREATE INDEX idx_users_email ON users(email);
 -- Seed Data: Users
@@ -172,3 +186,54 @@ VALUES (
         TRUE,
         'Drink'
     );
+-- Seed Data: Sample Orders
+INSERT INTO orders (
+        tracking_id,
+        status,
+        delivery_address,
+        total_amount,
+        guest_name,
+        guest_email
+    )
+VALUES (
+        'TRACK-001',
+        'pending',
+        '123 Main St',
+        25.98,
+        'John Guest',
+        'guest1@example.com'
+    ),
+    (
+        'TRACK-002',
+        'paid',
+        '456 Oak Ave',
+        14.99,
+        'Jane Guest',
+        'guest2@example.com'
+    ),
+    (
+        'TRACK-003',
+        'preparing',
+        '789 Pine Ln',
+        18.99,
+        'Bob Guest',
+        'guest3@example.com'
+    ),
+    (
+        'TRACK-004',
+        'ready',
+        '101 Maple Dr',
+        12.99,
+        'Alice Guest',
+        'guest4@example.com'
+    );
+-- Seed Data: Order Items
+INSERT INTO order_items (menu_item_id, quantity, item_price, order_id)
+VALUES (1, 2, 12.99, 1),
+    -- 2 Classic Burgers for Order 1
+    (2, 1, 14.99, 2),
+    -- 1 Cheese Pizza for Order 2
+    (3, 1, 18.99, 3),
+    -- 1 Salmon for Order 3
+    (1, 1, 12.99, 4);
+-- 1 Burger for Order 4

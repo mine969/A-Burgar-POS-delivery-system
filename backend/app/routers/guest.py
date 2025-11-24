@@ -1,0 +1,18 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from .. import database, models, schemas
+
+router = APIRouter(
+    prefix="/guest",
+    tags=["guest"]
+)
+
+@router.get("/track/{tracking_id}", response_model=schemas.Order)
+def track_order(
+    tracking_id: str,
+    db: Session = Depends(database.get_db)
+):
+    order = db.query(models.Order).filter(models.Order.tracking_id == tracking_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order

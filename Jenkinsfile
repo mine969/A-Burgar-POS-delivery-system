@@ -147,7 +147,16 @@ EOF
 
                     echo "🔎 Checking API health..."
                     sh """
-                    timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done' || exit 1
+                    for i in {1..30}; do
+                        if curl -f http://localhost:3002/ 2>/dev/null; then
+                            echo "✅ API is responding!"
+                            exit 0
+                        fi
+                        echo "Attempt \$i/30 failed, retrying in 2s..."
+                        sleep 2
+                    done
+                    echo "❌ API health check failed after 30 attempts"
+                    exit 1
                     """
                 }
             }

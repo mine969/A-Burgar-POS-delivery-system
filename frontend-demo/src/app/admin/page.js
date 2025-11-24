@@ -3,9 +3,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import Image from 'next/image';
-import Link from 'next/link';
 
-export default function StaffDashboard() {
+export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('orders');
   const [orders, setOrders] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
@@ -13,10 +12,7 @@ export default function StaffDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Menu Form State
   const [newItem, setNewItem] = useState({ name: '', description: '', price: '', category: 'Main' });
-  
-  // Staff Registration State
   const [newStaff, setNewStaff] = useState({ name: '', email: '', password: '', role: 'kitchen' });
 
   const router = useRouter();
@@ -36,30 +32,28 @@ export default function StaffDashboard() {
       const userData = await api.getMe(token);
       setUser(userData);
       
-      // Redirect logic based on role if needed, or just load data
-      if (userData.role === 'kitchen') {
-        setActiveTab('orders');
-      } else if (userData.role === 'driver') {
-        setActiveTab('orders'); // Driver sees orders too, but filtered
+      // Only admin/manager can access this page
+      if (userData.role !== 'admin' && userData.role !== 'manager') {
+        router.push('/staff');
+        return;
       }
       
-      loadData(token, userData.role);
+      loadData(token);
     } catch (err) {
       router.push('/admin-portal');
     }
   };
 
-  const loadData = async (token, role) => {
+  const loadData = async (token) => {
     try {
-      const ordersData = await api.getOrders(token);
+      const [ordersData, menuData, driversData] = await Promise.all([
+        api.getOrders(token),
+        api.getMenu(),
+        api.getDrivers(token)
+      ]);
       setOrders(ordersData);
-      
-      if (role === 'admin' || role === 'manager') {
-         const menuData = await api.getMenu();
-         setMenuItems(menuData);
-         const driversData = await api.getDrivers(token);
-         setDrivers(driversData);
-      }
+      setMenuItems(menuData);
+      setDrivers(driversData);
     } catch (err) {
       console.error('Failed to load data');
     } finally {
@@ -70,13 +64,13 @@ export default function StaffDashboard() {
   const updateStatus = async (orderId, status) => {
     const token = localStorage.getItem('token');
     await api.updateOrderStatus(orderId, status, token);
-    loadData(token, user.role);
+    loadData(token);
   };
 
   const assignDriver = async (orderId, driverId) => {
     const token = localStorage.getItem('token');
     await api.assignDriver(orderId, driverId, token);
-    loadData(token, user.role);
+    loadData(token);
   };
 
   const handleCreateMenuItem = async (e) => {
@@ -84,7 +78,7 @@ export default function StaffDashboard() {
     const token = localStorage.getItem('token');
     await api.createMenuItem(newItem, token);
     setNewItem({ name: '', description: '', price: '', category: 'Main' });
-    loadData(token, user.role);
+    loadData(token);
     alert('Item added!');
   };
 
@@ -92,7 +86,7 @@ export default function StaffDashboard() {
     if(!confirm('Are you sure?')) return;
     const token = localStorage.getItem('token');
     await api.deleteMenuItem(id, token);
-    loadData(token, user.role);
+    loadData(token);
   };
 
   const handleRegisterStaff = async (e) => {
@@ -110,13 +104,12 @@ export default function StaffDashboard() {
 
   return (
     <div className="min-h-screen bg-cream-50">
-      {/* Navbar */}
       <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-cream-100 mb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20 items-center">
-             <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <Image src="/logo.png" alt="Logo" width={40} height={40} className="w-10 h-10 object-contain" />
-              <span className="text-2xl font-display text-primary tracking-wider transform rotate-[-2deg]">DASHBOARD</span>
+              <span className="text-2xl font-display text-primary tracking-wider transform rotate-[-2deg]">ADMIN DASHBOARD</span>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-brown-900 font-bold">Hello, {user?.name} ({user?.role})</span>
@@ -132,35 +125,26 @@ export default function StaffDashboard() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        {/* Tabs */}
         <div className="flex space-x-4 mb-8 overflow-x-auto pb-2">
-          {['orders', 'menu', 'reports', 'staff'].map((tab) => {
-            // Role-based tab visibility
-            if (user?.role === 'kitchen' && tab !== 'orders') return null;
-            if (user?.role === 'driver' && tab !== 'orders') return null; // Driver uses orders tab for now
-            if (user?.role === 'manager' && tab === 'staff') return null; // Manager can't register staff? Assuming admin only.
-
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-6 py-3 rounded-full font-bold uppercase tracking-wide transition-all ${
-                  activeTab === tab
-                    ? 'bg-primary text-white shadow-lg transform scale-105'
-                    : 'bg-white text-brown-900 hover:bg-cream-100'
-                }`}
-              >
-                {tab}
-              </button>
-            );
-          })}
+          {['orders', 'menu', 'staff', 'reports'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-6 py-3 rounded-full font-bold uppercase tracking-wide transition-all ${
+                activeTab === tab
+                  ? 'bg-primary text-white shadow-lg transform scale-105'
+                  : 'bg-white text-brown-900 hover:bg-cream-100'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
 
-        {/* Content */}
         <div className="card p-6 min-h-[500px]">
           {activeTab === 'orders' && (
             <div className="space-y-6">
-              <h2 className="text-3xl font-display text-brown-900 mb-6">Active Orders</h2>
+              <h2 className="text-3xl font-display text-brown-900 mb-6">Manage Orders</h2>
               <div className="grid gap-6">
                 {orders.map((order) => (
                   <div key={order.id} className="bg-cream-50 p-6 rounded-xl border border-cream-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -180,48 +164,38 @@ export default function StaffDashboard() {
                       <p className="text-sm text-brown-600">{new Date(order.created_at).toLocaleString()}</p>
                       <div className="mt-2 text-sm text-brown-700">
                         {order.items.map((item, i) => (
-                            <span key={i} className="block">• {item.menu_item.name} x{item.quantity}</span>
+                          <span key={i} className="block">• {item.menu_item.name} x{item.quantity}</span>
                         ))}
                       </div>
                     </div>
                     
                     <div className="flex flex-col gap-2 w-full md:w-auto">
-                      {order.status === 'pending' && (
-                        <button onClick={() => updateStatus(order.id, 'cooking')} className="btn-primary text-sm">
-                          Accept & Cook
-                        </button>
-                      )}
-                      {order.status === 'cooking' && (
-                        <button onClick={() => updateStatus(order.id, 'ready')} className="btn-primary text-sm bg-green-600 hover:bg-green-700">
-                          Mark Ready
-                        </button>
-                      )}
                       {order.status === 'ready' && !order.driver_id && (
                         <div className="flex gap-2">
-                            <select 
-                                className="p-2 border rounded text-brown-900"
-                                onChange={(e) => assignDriver(order.id, e.target.value)}
-                                defaultValue=""
-                            >
-                                <option value="" disabled>Assign Driver</option>
-                                {drivers.map(d => (
-                                    <option key={d.id} value={d.id}>{d.name}</option>
-                                ))}
-                            </select>
+                          <select 
+                            className="p-2 border rounded text-brown-900"
+                            onChange={(e) => assignDriver(order.id, e.target.value)}
+                            defaultValue=""
+                          >
+                            <option value="" disabled>Assign Driver</option>
+                            {drivers.map(d => (
+                              <option key={d.id} value={d.id}>{d.name}</option>
+                            ))}
+                          </select>
                         </div>
                       )}
                       {order.driver_id && (
-                          <span className="text-sm font-bold text-blue-600">Driver Assigned</span>
+                        <span className="text-sm font-bold text-blue-600">Driver Assigned</span>
                       )}
                     </div>
                   </div>
                 ))}
-                {orders.length === 0 && <p className="text-center text-brown-500 italic">No active orders</p>}
+                {orders.length === 0 && <p className="text-center text-brown-500 italic">No orders</p>}
               </div>
             </div>
           )}
 
-          {activeTab === 'menu' && user?.role === 'admin' && (
+          {activeTab === 'menu' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-1 bg-cream-50 p-6 rounded-xl h-fit">
                 <h3 className="text-xl font-display text-brown-900 mb-4">Add New Item</h3>
@@ -252,38 +226,38 @@ export default function StaffDashboard() {
             </div>
           )}
 
-          {activeTab === 'reports' && user?.role === 'admin' && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 text-center">
-                    <h3 className="text-blue-900 font-bold uppercase text-sm mb-2">Total Orders</h3>
-                    <p className="text-4xl font-display text-blue-600">{orders.length}</p>
-                </div>
-                <div className="bg-green-50 p-6 rounded-xl border border-green-100 text-center">
-                    <h3 className="text-green-900 font-bold uppercase text-sm mb-2">Completed</h3>
-                    <p className="text-4xl font-display text-green-600">{orders.filter(o => o.status === 'delivered').length}</p>
-                </div>
-                <div className="bg-orange-50 p-6 rounded-xl border border-orange-100 text-center">
-                    <h3 className="text-orange-900 font-bold uppercase text-sm mb-2">Pending</h3>
-                    <p className="text-4xl font-display text-orange-600">{orders.filter(o => o.status !== 'delivered').length}</p>
-                </div>
+          {activeTab === 'staff' && (
+            <div className="max-w-md mx-auto bg-cream-50 p-8 rounded-xl">
+              <h3 className="text-2xl font-display text-brown-900 mb-6 text-center">Register New Staff</h3>
+              <form onSubmit={handleRegisterStaff} className="space-y-4">
+                <input type="text" placeholder="Name" className="w-full p-3 rounded-lg border border-cream-200" value={newStaff.name} onChange={e => setNewStaff({...newStaff, name: e.target.value})} required />
+                <input type="email" placeholder="Email" className="w-full p-3 rounded-lg border border-cream-200" value={newStaff.email} onChange={e => setNewStaff({...newStaff, email: e.target.value})} required />
+                <input type="password" placeholder="Password" className="w-full p-3 rounded-lg border border-cream-200" value={newStaff.password} onChange={e => setNewStaff({...newStaff, password: e.target.value})} required />
+                <select className="w-full p-3 rounded-lg border border-cream-200" value={newStaff.role} onChange={e => setNewStaff({...newStaff, role: e.target.value})}>
+                  <option value="kitchen">Kitchen Staff</option>
+                  <option value="driver">Driver</option>
+                  <option value="manager">Manager</option>
+                </select>
+                <button type="submit" className="w-full btn-primary">Register Staff</button>
+              </form>
             </div>
           )}
 
-          {activeTab === 'staff' && user?.role === 'admin' && (
-             <div className="max-w-md mx-auto bg-cream-50 p-8 rounded-xl">
-                <h3 className="text-2xl font-display text-brown-900 mb-6 text-center">Register New Staff</h3>
-                <form onSubmit={handleRegisterStaff} className="space-y-4">
-                  <input type="text" placeholder="Name" className="w-full p-3 rounded-lg border border-cream-200" value={newStaff.name} onChange={e => setNewStaff({...newStaff, name: e.target.value})} required />
-                  <input type="email" placeholder="Email" className="w-full p-3 rounded-lg border border-cream-200" value={newStaff.email} onChange={e => setNewStaff({...newStaff, email: e.target.value})} required />
-                  <input type="password" placeholder="Password" className="w-full p-3 rounded-lg border border-cream-200" value={newStaff.password} onChange={e => setNewStaff({...newStaff, password: e.target.value})} required />
-                  <select className="w-full p-3 rounded-lg border border-cream-200" value={newStaff.role} onChange={e => setNewStaff({...newStaff, role: e.target.value})}>
-                    <option value="kitchen">Kitchen Staff</option>
-                    <option value="driver">Driver</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                  <button type="submit" className="w-full btn-primary">Register Staff</button>
-                </form>
-             </div>
+          {activeTab === 'reports' && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 text-center">
+                <h3 className="text-blue-900 font-bold uppercase text-sm mb-2">Total Orders</h3>
+                <p className="text-4xl font-display text-blue-600">{orders.length}</p>
+              </div>
+              <div className="bg-green-50 p-6 rounded-xl border border-green-100 text-center">
+                <h3 className="text-green-900 font-bold uppercase text-sm mb-2">Completed</h3>
+                <p className="text-4xl font-display text-green-600">{orders.filter(o => o.status === 'delivered').length}</p>
+              </div>
+              <div className="bg-orange-50 p-6 rounded-xl border border-orange-100 text-center">
+                <h3 className="text-orange-900 font-bold uppercase text-sm mb-2">Pending</h3>
+                <p className="text-4xl font-display text-orange-600">{orders.filter(o => o.status !== 'delivered').length}</p>
+              </div>
+            </div>
           )}
         </div>
       </div>

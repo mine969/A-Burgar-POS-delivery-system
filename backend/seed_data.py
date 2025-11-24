@@ -14,34 +14,12 @@ def reset_and_seed():
         print("Creating admin user...")
         hashed_password = auth.get_password_hash("admin123")
         admin_user = models.User(
-            email="admin@example.com",
+            email="admin123@gmail.com",
             name="Admin User",
             role="admin",
             hashed_password=hashed_password
         )
         db.add(admin_user)
-        
-        # 2. Seed Driver
-        print("Creating driver user...")
-        hashed_password = auth.get_password_hash("driver123")
-        driver_user = models.User(
-            email="driver@example.com",
-            name="Driver One",
-            role="driver",
-            hashed_password=hashed_password
-        )
-        db.add(driver_user)
-
-        # 3. Seed Kitchen Staff
-        print("Creating kitchen user...")
-        hashed_password = auth.get_password_hash("kitchen123")
-        kitchen_user = models.User(
-            email="kitchen@example.com",
-            name="Kitchen Staff",
-            role="manager", 
-            hashed_password=hashed_password
-        )
-        db.add(kitchen_user)
 
         # 4. Seed Menu Items
         print("Seeding menu items...")

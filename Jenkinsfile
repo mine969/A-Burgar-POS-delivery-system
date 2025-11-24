@@ -92,15 +92,15 @@ pipeline {
                     ]) {
                         sh """
                         cat > .env <<EOF
-MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASS}
-MYSQL_DATABASE=food_delivery
-MYSQL_USER=burger_user
-MYSQL_PASSWORD=${MYSQL_PASS}
-MYSQL_PORT=3306
-API_PORT=8000
-FRONTEND_PORT=3001
-NODE_ENV=production
-API_HOST=${params.API_HOST}
+MYSQL_ROOT_PASSWORD=\${MYSQL_ROOT_PASS}
+MYSQL_DATABASE=burgar_db
+MYSQL_USER=burgar_user
+MYSQL_PASSWORD=\${MYSQL_PASS}
+MYSQL_PORT=3307
+PHPMYADMIN_PORT=8889
+API_PORT=3002
+DB_PORT=3306
+FRONTEND_PORT=3005
 EOF
                         """
                     }
@@ -114,6 +114,11 @@ EOF
             steps {
                 script {
                     echo "🚀 Deploying Docker Compose services..."
+
+                    // Stop any existing containers first
+                    sh "docker compose down || true"
+                    sh "docker stop bitebite_quick || true"
+                    sh "docker rm bitebite_quick || true"
 
                     def downCmd = "docker compose down"
                     if (params.CLEAN_VOLUMES) {
@@ -142,7 +147,16 @@ EOF
 
                     echo "🔎 Checking API health..."
                     sh """
-                    timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done' || exit 1
+                    for i in {1..30}; do
+                        if curl -f http://localhost:3002/ 2>/dev/null; then
+                            echo "✅ API is responding!"
+                            exit 0
+                        fi
+                        echo "Attempt \$i/30 failed, retrying in 2s..."
+                        sleep 2
+                    done
+                    echo "❌ API health check failed after 30 attempts"
+                    exit 1
                     """
                 }
             }

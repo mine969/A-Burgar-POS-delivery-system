@@ -12,6 +12,7 @@ app = FastAPI(title="Food Delivery API")
 origins = [
     "http://localhost:3000", # Frontend
     "http://localhost:3001", # Frontend Demo
+    "http://localhost:3005", # Frontend Demo (Docker)
     "http://localhost:8000",
     "http://localhost", # Nginx
 ]

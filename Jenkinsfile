@@ -96,7 +96,6 @@ MYSQL_DATABASE=food_delivery
 MYSQL_USER=burger_user
 MYSQL_PASSWORD=${MYSQL_PASS}
 MYSQL_PORT=3306
-PHPMYADMIN_PORT=8888
 API_PORT=8000
 FRONTEND_PORT=3001
 NODE_ENV=production
@@ -160,7 +159,6 @@ EOF
                 echo "=== 🌐 Service URLs ==="
                 echo "Frontend:  http://localhost:3001"
                 echo "API:       http://localhost:8000"
-                echo "phpMyAdmin: http://localhost:8888"
                 """
             }
         }
@@ -183,7 +181,6 @@ Your services are live:
 
 Frontend:  http://localhost:3001
 API:       http://localhost:8000
-phpMyAdmin: http://localhost:8888
 
 — Jenkins
                  """

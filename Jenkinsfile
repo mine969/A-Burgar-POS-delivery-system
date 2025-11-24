@@ -173,7 +173,7 @@ EOF
 
                 echo "=== 🌐 Service URLs ==="
                 echo "Frontend:  http://localhost:3001"
-                echo "API:       http://localhost:8000"
+                echo "API:       http://localhost:3002"
                 """
             }
         }

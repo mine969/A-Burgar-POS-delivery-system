@@ -55,7 +55,7 @@ pipeline {
 
                     echo "🔧 Installing Rust (required for cryptography)..."
                     export PATH="\$HOME/.cargo/bin:\$PATH"
-                    if ! command -v rustc >/dev/null 2>&1; then
+                    if ! command -v rustc > /dev/null 2>&1; then
                         curl https://sh.rustup.rs -sSf | sh -s -- -y
                         source \$HOME/.cargo/env
                     fi
@@ -91,8 +91,7 @@ pipeline {
                         string(credentialsId: 'MYSQL_PASSWORD', variable: 'MYSQL_PASS')
                     ]) {
                         sh """
-                    sh """
-                    cat > .env <<EOF
+                        cat > .env <<EOF
 MYSQL_ROOT_PASSWORD=rootpassword
 MYSQL_DATABASE=burgar_db
 MYSQL_USER=burgar_user
@@ -103,9 +102,10 @@ API_PORT=3001
 DB_PORT=3306
 FRONTEND_PORT=3000
 EOF
-                    """
+                        """
 
-                    echo ".env created successfully"
+                        echo ".env created successfully"
+                    }
                 }
             }
         }

@@ -54,7 +54,7 @@ export default function StaffDashboard() {
       const ordersData = await api.getOrders(token);
       setOrders(ordersData);
       
-      if (role === 'admin' || role === 'manager') {
+      if (role === 'admin') {
          const menuData = await api.getMenu();
          setMenuItems(menuData);
          const driversData = await api.getDrivers(token);
@@ -138,7 +138,7 @@ export default function StaffDashboard() {
             // Role-based tab visibility
             if (user?.role === 'kitchen' && tab !== 'orders') return null;
             if (user?.role === 'driver' && tab !== 'orders') return null; // Driver uses orders tab for now
-            if (user?.role === 'manager' && tab === 'staff') return null; // Manager can't register staff? Assuming admin only.
+
 
             return (
               <button

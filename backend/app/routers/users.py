@@ -7,7 +7,7 @@ from ..schemas import user as schemas
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-ALLOWED_ROLES = {"customer", "manager", "driver", "admin"}
+ALLOWED_ROLES = {"customer", "driver", "admin", "kitchen"}
 
 @router.post("/", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)):

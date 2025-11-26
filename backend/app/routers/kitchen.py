@@ -14,7 +14,7 @@ def get_kitchen_queue(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    if current_user.role != "kitchen" and current_user.role != "manager":
+    if current_user.role != "kitchen":
         raise HTTPException(status_code=403, detail="Not authorized")
         
     # Kitchen sees orders that are 'paid' (new) or 'preparing'

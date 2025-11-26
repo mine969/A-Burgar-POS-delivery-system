@@ -83,7 +83,7 @@ VALUES (
         'Admin Manager',
         'admin123@gmail.com',
         '$2b$12$jNGZk2Wf1kGRrbMfTQKD7.j5pS0VpQLDrNvsasA3nADQQeTuMq.ZG',
-        'manager'
+        'admin'
     ),
     (
         'Kitchen Staff',

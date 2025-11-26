@@ -4,6 +4,7 @@ from typing import List
 from .. import database, models, auth
 from ..schemas import order as schemas
 from pydantic import BaseModel
+import uuid
 
 router = APIRouter(
     prefix="/orders",
@@ -47,7 +48,8 @@ def create_order(
         customer_id=customer_id,
         guest_name=order.guest_name,
         guest_email=order.guest_email,
-        guest_phone=order.guest_phone
+        guest_phone=order.guest_phone,
+        tracking_id=str(uuid.uuid4())
     )
     db.add(db_order)
     db.commit()
@@ -75,7 +77,7 @@ def read_orders(
     current_user: models.User = Depends(auth.get_current_user)
 ):
     # Filter by role
-    if current_user.role in ["admin", "manager", "kitchen"]:
+    if current_user.role in ["admin", "kitchen"]:
         return db.query(models.Order).all()
     elif current_user.role == "driver":
         return db.query(models.Order).filter(models.Order.driver_id == current_user.id).all()
@@ -92,8 +94,8 @@ def update_order_status(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_active_user)
 ):
-    # Allow manager and driver (and maybe admin) to update status
-    if current_user.role not in ["manager", "driver", "admin"]:
+    # Allow kitchen, driver and admin to update status
+    if current_user.role not in ["kitchen", "driver", "admin"]:
         raise HTTPException(status_code=403, detail="Not authorized")
         
     order = db.query(models.Order).filter(models.Order.id == order_id).first()
@@ -115,7 +117,7 @@ def assign_driver(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_active_user)
 ):
-    if current_user.role not in ["admin", "manager"]:
+    if current_user.role not in ["admin", "kitchen"]:
         raise HTTPException(status_code=403, detail="Not authorized")
         
     order = db.query(models.Order).filter(models.Order.id == order_id).first()

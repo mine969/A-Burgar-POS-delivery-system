@@ -11,7 +11,7 @@ router = APIRouter(
 )
 
 def check_admin(user: models.User):
-    if user.role != "manager":
+    if user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
 
 @router.get("/dashboard")

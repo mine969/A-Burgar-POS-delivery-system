@@ -7,6 +7,7 @@ class MenuItemBase(BaseModel):
     description: Optional[str] = None
     price: Decimal
     image_url: Optional[str] = None
+    category: Optional[str] = None
     is_available: bool = True
 
 class MenuItemCreate(MenuItemBase):

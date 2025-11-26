@@ -33,7 +33,7 @@ export default function AdminDashboard() {
       setUser(userData);
       
       // Only admin/manager can access this page
-      if (userData.role !== 'admin' && userData.role !== 'manager') {
+      if (userData.role !== 'admin') {
         router.push('/staff');
         return;
       }
@@ -236,7 +236,7 @@ export default function AdminDashboard() {
                 <select className="w-full p-3 rounded-lg border border-cream-200" value={newStaff.role} onChange={e => setNewStaff({...newStaff, role: e.target.value})}>
                   <option value="kitchen">Kitchen Staff</option>
                   <option value="driver">Driver</option>
-                  <option value="manager">Manager</option>
+
                 </select>
                 <button type="submit" className="w-full btn-primary">Register Staff</button>
               </form>

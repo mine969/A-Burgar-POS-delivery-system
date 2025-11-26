@@ -57,6 +57,9 @@ export default function StaffDashboard() {
       if (role === 'admin') {
          const menuData = await api.getMenu();
          setMenuItems(menuData);
+      }
+      
+      if (role === 'admin' || role === 'kitchen') {
          const driversData = await api.getDrivers(token);
          setDrivers(driversData);
       }

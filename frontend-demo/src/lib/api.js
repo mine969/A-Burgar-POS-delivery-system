@@ -139,4 +139,20 @@ export const api = {
     if (!res.ok) throw new Error('Failed to delete menu item');
     return res.json();
   },
+
+  uploadImage: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const res = await fetch(`${API_URL}/upload/`, {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.detail || 'Upload failed');
+    }
+    return res.json();
+  },
 };

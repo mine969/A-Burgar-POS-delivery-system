@@ -42,6 +42,8 @@ services:
       TZ: Asia/Bangkok
     ports:
       - "${API_PORT:-3001}:8000"
+    volumes:
+      - ./backend/static:/app/static
     depends_on: [mysql]
     networks: [stack]
 

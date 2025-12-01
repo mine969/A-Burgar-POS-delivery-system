@@ -224,6 +224,45 @@ export default function AdminDashboard() {
                   <input type="text" placeholder="Name" className="w-full p-3 rounded-lg border border-cream-200" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} required />
                   <textarea placeholder="Description" className="w-full p-3 rounded-lg border border-cream-200" value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} />
                   <input type="number" step="0.01" placeholder="Price" className="w-full p-3 rounded-lg border border-cream-200" value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} required />
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-brown-700">Image</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        placeholder="Image URL" 
+                        className="flex-1 p-3 rounded-lg border border-cream-200" 
+                        value={newItem.image_url || ''} 
+                        onChange={e => setNewItem({...newItem, image_url: e.target.value})} 
+                      />
+                      <div className="relative">
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          onChange={async (e) => {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                            try {
+                              const res = await api.uploadImage(file);
+                              setNewItem(prev => ({ ...prev, image_url: res.url }));
+                            } catch (err) {
+                              alert('Upload failed: ' + err.message);
+                            }
+                          }}
+                        />
+                        <button type="button" className="bg-brown-200 text-brown-800 px-4 py-3 rounded-lg font-bold hover:bg-brown-300 transition">
+                          Upload
+                        </button>
+                      </div>
+                    </div>
+                    {newItem.image_url && (
+                      <div className="relative w-full h-32 bg-cream-100 rounded-lg overflow-hidden">
+                         <Image src={newItem.image_url} alt="Preview" fill className="object-cover" />
+                      </div>
+                    )}
+                  </div>
+
                   <select className="w-full p-3 rounded-lg border border-cream-200" value={newItem.category} onChange={e => setNewItem({...newItem, category: e.target.value})}>
                     <option value="Main">Main</option>
                     <option value="Side">Side</option>

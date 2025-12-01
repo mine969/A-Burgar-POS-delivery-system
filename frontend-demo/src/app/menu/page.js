@@ -29,19 +29,55 @@ export default function Menu() {
   };
 
   const addToCart = (item) => {
-    setCart([...cart, { ...item, quantity: 1 }]);
+    setCart(prevCart => {
+      const existing = prevCart.find(i => i.id === item.id);
+      if (existing) {
+        return prevCart.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prevCart, { ...item, quantity: 1 }];
+    });
   };
 
-  const placeOrder = async () => {
-    try {
-      if (!guestDetails.name || !guestDetails.phone || !guestDetails.address) {
-        alert('Please fill in all guest details');
-        return;
-      }
+  const updateQuantity = (itemId, delta) => {
+    setCart(prevCart => {
+      return prevCart.map(item => {
+        if (item.id === itemId) {
+          const newQty = Math.max(1, item.quantity + delta);
+          return { ...item, quantity: newQty };
+        }
+        return item;
+      });
+    });
+  };
 
+  const removeFromCart = (itemId) => {
+    setCart(prevCart => prevCart.filter(item => item.id !== itemId));
+  };
+
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [orderResult, setOrderResult] = useState(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  const placeOrder = () => {
+    if (!guestDetails.name || !guestDetails.phone || !guestDetails.address) {
+      alert('Please fill in all guest details');
+      return;
+    }
+    setShowPaymentModal(true);
+  };
+
+  const handlePayment = async (e) => {
+    e.preventDefault();
+    setIsProcessingPayment(true);
+    
+    // Simulate payment delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    try {
       const orderItems = cart.map(item => ({
         menu_item_id: item.id,
-        quantity: 1
+        quantity: item.quantity
       }));
 
       const newOrder = await api.createOrder(
@@ -55,11 +91,15 @@ export default function Menu() {
         }
       );
       
-      alert(`Order placed successfully! Your Order ID is: ${newOrder.id}\n\nPlease save this ID to track your order.`);
+      setOrderResult(newOrder);
+      setShowPaymentModal(false);
+      setShowConfirmation(true);
       setCart([]);
       setGuestDetails({ name: '', phone: '', address: '' });
     } catch (err) {
       alert(err.message);
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
@@ -94,8 +134,19 @@ export default function Menu() {
               {menuItems.map((item) => (
                 <div key={item.id} className="card group hover:border-primary transition-colors">
                   <div className="h-48 bg-cream-100 relative overflow-hidden">
-                     {/* Placeholder for item image - using hero for now or generic */}
-                     <div className="absolute inset-0 flex items-center justify-center text-brown-300 font-display text-4xl opacity-20">
+                     {item.image_url ? (
+                        <Image 
+                          src={item.image_url} 
+                          alt={item.name} 
+                          fill 
+                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                     ) : null}
+                     <div className={`absolute inset-0 flex items-center justify-center text-brown-300 font-display text-4xl opacity-20 ${item.image_url ? 'hidden' : ''}`}>
                         {item.category === 'Main' ? '🍔' : item.category === 'Drink' ? '🥤' : '🍟'}
                      </div>
                   </div>
@@ -131,16 +182,26 @@ export default function Menu() {
                 <div className="space-y-6">
                   <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
                     {cart.map((item, index) => (
-                        <div key={index} className="flex justify-between text-sm text-brown-900 font-medium border-b border-cream-100 pb-2">
-                            <span>{item.name}</span>
-                            <span>${item.price}</span>
+                        <div key={index} className="flex justify-between items-center text-sm text-brown-900 font-medium border-b border-cream-100 pb-2">
+                            <div className="flex-1">
+                              <div className="flex justify-between">
+                                <span>{item.name}</span>
+                                <span>${(Number(item.price) * item.quantity).toFixed(2)}</span>
+                              </div>
+                              <div className="flex items-center gap-2 mt-1">
+                                <button onClick={() => updateQuantity(item.id, -1)} className="w-6 h-6 rounded-full bg-cream-200 hover:bg-cream-300 flex items-center justify-center text-xs font-bold">-</button>
+                                <span>{item.quantity}</span>
+                                <button onClick={() => updateQuantity(item.id, 1)} className="w-6 h-6 rounded-full bg-cream-200 hover:bg-cream-300 flex items-center justify-center text-xs font-bold">+</button>
+                                <button onClick={() => removeFromCart(item.id)} className="ml-auto text-red-500 text-xs hover:text-red-700">Remove</button>
+                              </div>
+                            </div>
                         </div>
                     ))}
                   </div>
                   
                   <div className="border-t-2 border-dashed border-brown-200 pt-4 flex justify-between font-display text-2xl text-primary">
                       <span>TOTAL</span>
-                      <span>${cart.reduce((sum, item) => sum + Number(item.price), 0).toFixed(2)}</span>
+                      <span>${cart.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0).toFixed(2)}</span>
                   </div>
 
                   <div className="space-y-3 bg-cream-100 p-4 rounded-xl">
@@ -180,6 +241,98 @@ export default function Menu() {
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+            <button 
+              onClick={() => setShowPaymentModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+            
+            <h3 className="text-2xl font-display text-brown-900 mb-6 text-center">Secure Payment</h3>
+            
+            <form onSubmit={handlePayment} className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-brown-700 mb-1">Card Number</label>
+                <input required type="text" placeholder="0000 0000 0000 0000" className="w-full p-3 border border-cream-200 rounded-lg bg-cream-50" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-brown-700 mb-1">Expiry</label>
+                  <input required type="text" placeholder="MM/YY" className="w-full p-3 border border-cream-200 rounded-lg bg-cream-50" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-brown-700 mb-1">CVC</label>
+                  <input required type="text" placeholder="123" className="w-full p-3 border border-cream-200 rounded-lg bg-cream-50" />
+                </div>
+              </div>
+              
+              <div className="border-t border-cream-200 pt-4 mt-6">
+                <div className="flex justify-between text-lg font-bold text-brown-900 mb-4">
+                  <span>Total to Pay</span>
+                  <span>${cart.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0).toFixed(2)}</span>
+                </div>
+                
+                <button 
+                  type="submit" 
+                  disabled={isProcessingPayment}
+                  className="w-full py-4 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary-dark transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                >
+                  {isProcessingPayment ? (
+                    <>
+                      <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
+                      Processing...
+                    </>
+                  ) : (
+                    'PAY NOW'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Screen */}
+      {showConfirmation && orderResult && (
+        <div className="fixed inset-0 bg-primary/95 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-10 text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-green-600"></div>
+            
+            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-5xl">✓</span>
+            </div>
+            
+            <h2 className="text-4xl font-display text-brown-900 mb-2">Order Confirmed!</h2>
+            <p className="text-brown-600 mb-8">Your delicious food is on the way.</p>
+            
+            <div className="bg-cream-50 rounded-xl p-6 mb-8 border border-cream-100">
+              <p className="text-sm text-brown-500 uppercase tracking-widest font-bold mb-2">Tracking ID</p>
+              <p className="text-4xl font-display text-primary tracking-wider">{orderResult.id}</p>
+              <p className="text-xs text-brown-400 mt-2">Save this ID to track your order</p>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <Link 
+                href="/track" 
+                className="w-full py-4 bg-brown-900 text-white rounded-xl font-bold hover:bg-brown-800 transition-colors"
+              >
+                TRACK ORDER
+              </Link>
+              <button 
+                onClick={() => setShowConfirmation(false)}
+                className="w-full py-4 bg-transparent text-brown-600 font-bold hover:text-brown-900"
+              >
+                Back to Menu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

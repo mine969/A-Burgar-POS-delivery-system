@@ -13,11 +13,10 @@ app = FastAPI(title="Food Delivery API")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # CORS Configuration
-origins = [
     "http://localhost:3000", # Frontend
     "http://localhost:3001", # API
     "http://localhost", # Nginx
-]
+    "*", # Allow all origins (for Vercel deployment)
 
 app.add_middleware(
     CORSMiddleware,

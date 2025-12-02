@@ -22,4 +22,3 @@ services:
         value: 8000
       - key: DB_NAME
         value: food_delivery
-    startCommand: "sh -c 'python app/seed_db.py && uvicorn app.main:app --host 0.0.0.0 --port 8000'"

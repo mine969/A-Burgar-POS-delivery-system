@@ -12,6 +12,9 @@ DB_NAME = os.getenv("DB_NAME", "food_delivery")
 
 # Prioritize DATABASE_URL if set (common in cloud providers)
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+if SQLALCHEMY_DATABASE_URL and SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 if not SQLALCHEMY_DATABASE_URL:
     SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 

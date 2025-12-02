@@ -36,10 +36,10 @@ def seed():
 
         print("Seeding Users...")
         users = [
-            User(id=1, name='John Witch', email='johnwitch123@gmail.com', password_hash=get_password_hash('password'), role='admin'),
-            User(id=13, name='admin', email='admin123@gmail.com', password_hash=get_password_hash('password'), role='admin'),
-            User(id=14, name='Gordon Ramsay', email='gordonramsay123@gmail.com', password_hash=get_password_hash('password'), role='kitchen'),
-            User(id=15, name='Michael Schumacher', email='michael123@gmail.com', password_hash=get_password_hash('password'), role='driver')
+            User(id=1, name='John Witch', email='johnwitch123@gmail.com', hashed_password=get_password_hash('password'), role='admin'),
+            User(id=13, name='admin', email='admin123@gmail.com', hashed_password=get_password_hash('password'), role='admin'),
+            User(id=14, name='Gordon Ramsay', email='gordonramsay123@gmail.com', hashed_password=get_password_hash('password'), role='kitchen'),
+            User(id=15, name='Michael Schumacher', email='michael123@gmail.com', hashed_password=get_password_hash('password'), role='driver')
         ]
         db.add_all(users)
         db.commit()

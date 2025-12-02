@@ -36,7 +36,7 @@ def seed():
 
         print("Seeding Users...")
         users = [
-            User(id=1, name='John Witch', email='johnwitch123@gmail.com', hashed_password=get_password_hash('password'), role='admin'),
+            User(id=1, name='John Wick', email='johnwick123@gmail.com', hashed_password=get_password_hash('password'), role='admin'),
             User(id=13, name='admin', email='admin123@gmail.com', hashed_password=get_password_hash('password'), role='admin'),
             User(id=14, name='Gordon Ramsay', email='gordonramsay123@gmail.com', hashed_password=get_password_hash('password'), role='kitchen'),
             User(id=15, name='Michael Schumacher', email='michael123@gmail.com', hashed_password=get_password_hash('password'), role='driver')
@@ -57,7 +57,7 @@ def seed():
             MenuItem(id=10, name='Lemonade', description='Freshly squeezed lemonade', price=3.99, image_url='https://via.placeholder.com/300x200/FFAAA5/FFFFFF?text=Lemonade', is_available=True, category='Drink', is_deleted=False),
             MenuItem(id=26, name='Pepesi', description='Drink ', price=2.99, image_url='https://via.placeholder.com/300x200/FF8B94/FFFFFF?text=Pepesi', is_available=True, category='Drink', is_deleted=False),
             MenuItem(id=30, name='Classic Beef Burger', description='This hamburger patty recipe uses ground beef and an easy bread crumb mixture...', price=19.99, image_url='https://via.placeholder.com/300x200/C7CEEA/FFFFFF?text=Beef+Burger', is_available=True, category='Burger', is_deleted=False),
-            MenuItem(id=31, name='Double Beef Burger', description='Curious about what is in a Daily Double? It's made with two 100% beef patties...', price=29.99, image_url='https://via.placeholder.com/300x200/FFDAC1/333333?text=Double+Burger', is_available=True, category='Burger', is_deleted=False),
+            MenuItem(id=31, name='Double Beef Burger', description='Curious about what is in a Daily Double? It is made with two 100 percent beef patties...', price=29.99, image_url='https://via.placeholder.com/300x200/FFDAC1/333333?text=Double+Burger', is_available=True, category='Burger', is_deleted=False),
             MenuItem(id=32, name='Crispy Chicken Burger', description='Marinade strips of chicken thighs in soy sauce, garlic and ginger...', price=19.99, image_url='https://via.placeholder.com/300x200/B5EAD7/FFFFFF?text=Crispy+Chicken', is_available=True, category='Burger', is_deleted=False),
             MenuItem(id=33, name='Grilled chicken burger', description='Try these grilled chicken burgers for a nice break from typical beef hamburgers...', price=19.99, image_url='https://via.placeholder.com/300x200/E2F0CB/333333?text=Grilled+Chicken', is_available=True, category='Burger', is_deleted=False),
             MenuItem(id=34, name='Cheese Lover Burger', description='A breaded crispy 100% chicken fillet patty...', price=29.99, image_url='https://via.placeholder.com/300x200/FFD3B6/333333?text=Cheese+Burger', is_available=True, category='Burger', is_deleted=False),

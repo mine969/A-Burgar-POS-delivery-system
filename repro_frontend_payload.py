@@ -1,7 +1,7 @@
 import requests
 import json
 
-API_URL = "http://localhost:3001"
+API_URL = "https://food-delivery-api-r6ih.onrender.com"
 
 def test_frontend_payload():
     # 1. Login as admin

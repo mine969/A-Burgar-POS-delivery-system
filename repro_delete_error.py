@@ -1,7 +1,7 @@
 import requests
 import sys
 
-BASE_URL = "http://localhost:3001"
+BASE_URL = "https://food-delivery-api-r6ih.onrender.com"
 LOGIN_URL = f"{BASE_URL}/auth/login"
 MENU_URL = f"{BASE_URL}/menu/"
 

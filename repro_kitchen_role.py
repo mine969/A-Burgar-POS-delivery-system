@@ -1,7 +1,7 @@
 import requests
 import json
 
-API_URL = "http://localhost:3001"
+API_URL = "https://food-delivery-api-r6ih.onrender.com"
 
 def test_kitchen_role():
     # 1. Create Kitchen User

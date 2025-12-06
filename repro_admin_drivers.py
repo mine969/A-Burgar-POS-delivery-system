@@ -1,6 +1,6 @@
 import requests
 
-API_URL = "http://localhost:3001"
+API_URL = "https://food-delivery-api-r6ih.onrender.com"
 
 def test_admin_drivers():
     print("Logging in as admin...")

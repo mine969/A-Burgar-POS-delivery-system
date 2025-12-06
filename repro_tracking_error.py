@@ -10,23 +10,10 @@ API_URL = "https://food-delivery-api-r6ih.onrender.com"
 # If this works locally, then the issue is likely data mismatch on production (e.g. wiped DB)
 
 def test_tracking():
-    print("1. Creating order...")
-    resp = requests.post(f"{API_URL}/orders/", json={
-        "items": [{"menu_item_id": 1, "quantity": 1}],
-        "delivery_address": "Test St",
-        "guest_name": "Tester",
-        "guest_phone": "123"
-    })
-    
-    if resp.status_code != 200:
-        print(f"Create failed: {resp.text}")
-        return
-
-    order_id = resp.json()['id']
-    print(f"Created Order ID: {order_id}")
-
-    print(f"2. Tracking Order ID: {order_id}")
-    track_resp = requests.get(f"{API_URL}/guest/track/{order_id}")
+    # Check specifically for Order ID 1 as reported by user
+    target_id = 1
+    print(f"Checking Order ID: {target_id}")
+    track_resp = requests.get(f"{API_URL}/guest/track/{target_id}")
     
     if track_resp.status_code == 200:
         print("SUCCESS: Found order!")

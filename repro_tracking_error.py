@@ -4,7 +4,8 @@ import requests
 # If user is testing on DEPLOYED env, we should ask for URL or assume it.
 # Let's assume user is testing locally first or provide a way to switch.
 
-API_URL = "http://localhost:3001" 
+# API_URL = "http://localhost:3001" 
+API_URL = "https://food-delivery-api-r6ih.onrender.com" 
 # Verify if creating an order and tracking it works nicely
 # If this works locally, then the issue is likely data mismatch on production (e.g. wiped DB)
 
